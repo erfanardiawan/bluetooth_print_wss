@@ -128,6 +128,17 @@ class BluetoothPrint {
   Future<dynamic> connect(BluetoothDevice device) =>
       _channel.invokeMethod('connect', device.toJson());
 
+  // Add by: GOPAN
+  Future<dynamic> connectUsb(int vendorId, int productId) {
+    Map<String, dynamic> params = {
+      "vendorId": vendorId,
+      "productId": productId
+    };
+    return _channel.invokeMethod('connectUsb', params);
+  }
+
+  Future<dynamic> openDrawer() => _channel.invokeMethod('openDrawer');
+
   Future<dynamic> disconnect() => _channel.invokeMethod('disconnect');
 
   Future<dynamic> destroy() => _channel.invokeMethod('destroy');
