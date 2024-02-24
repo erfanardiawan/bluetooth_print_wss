@@ -365,6 +365,56 @@ public class BluetoothPrintPlugin implements FlutterPlugin, ActivityAware, Metho
 
   }
 
+
+  private boolean connectUsbPort(UsbDevice usbDevice) {
+    this.curMacAddress = String.valueOf(usbDevice.getVendorId()) + usbDevice.getProductId();
+    this.curUsbDevice = usbDevice;
+
+    disconnect();
+
+    new DeviceConnFactoryManager.Build()
+            .setConnMethod(DeviceConnFactoryManager.CONN_METHOD.USB)
+            .setUsbDevice(curUsbDevice)
+            .setMacAddress(curMacAddress)
+            .setContext(context)
+            .build();
+
+    //打开端口
+    threadPool = ThreadPool.getInstantiation();
+    threadPool.addSerialTask(new Runnable() {
+      @Override
+      public void run() {
+        DeviceConnFactoryManager.getDeviceConnFactoryManagers().get(curMacAddress).openPort();
+      }
+    });
+
+    return true;
+  }
+
+  private final BroadcastReceiver mUsbDeviceReceiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      if (USBPrinterAdapter.ACTION_USB_PERMISSION.equals(intent.getAction())) {
+        synchronized (this) {
+          UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+          if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+            adapter.mUsbDevice = usbDevice;
+            connectUsbPort(usbDevice);
+          } else {
+            Toast.makeText(context, "User refused to give USB device permissions" + usbDevice.getDeviceName(),
+                    Toast.LENGTH_LONG).show();
+          }
+        }
+      } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(intent.getAction())) {
+        if (adapter.mUsbDevice != null) {
+          Toast.makeText(context, "USB device has been turned off", Toast.LENGTH_LONG)
+                  .show();
+          adapter.closeConnectionIfExists();
+        }
+      }
+    }
+  };
+
   /**
    * 关闭连接
    */
@@ -411,6 +461,31 @@ public class BluetoothPrintPlugin implements FlutterPlugin, ActivityAware, Metho
       }
     });
 
+  }
+
+  private void drawer(Result result) {
+    final DeviceConnFactoryManager deviceConnFactoryManager = DeviceConnFactoryManager.getDeviceConnFactoryManagers().get(curMacAddress);
+    if (deviceConnFactoryManager == null || !deviceConnFactoryManager.getConnState()) {
+      result.error("not connect", "state not right", null);
+      return; // GOPAN
+    }
+
+    threadPool = ThreadPool.getInstantiation();
+    threadPool.addSerialTask(new Runnable() {
+      @Override
+      public void run() {
+        assert deviceConnFactoryManager != null;
+        PrinterCommand printerCommand = deviceConnFactoryManager.getCurrentPrinterCommand();
+
+        if (printerCommand == PrinterCommand.ESC) {
+          deviceConnFactoryManager.sendDataImmediately(PrintContent.mapOpenDrawer());
+//        }else if (printerCommand == PrinterCommand.TSC) {
+//          deviceConnFactoryManager.sendDataImmediately(PrintContent.mapToLabel(config, list));
+//        }else if (printerCommand == PrinterCommand.CPCL) {
+//          deviceConnFactoryManager.sendDataImmediately(PrintContent.mapToCPCL(config, list));
+        }
+      }
+    });
   }
 
   @SuppressWarnings("unchecked")
