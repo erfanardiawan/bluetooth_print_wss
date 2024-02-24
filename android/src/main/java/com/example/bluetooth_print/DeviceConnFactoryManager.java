@@ -3,6 +3,7 @@ package com.example.bluetooth_print;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -27,6 +28,9 @@ public class DeviceConnFactoryManager {
     public PortManager mPort;
 
     public CONN_METHOD connMethod;
+
+    // Add by: GOPAN
+    private final UsbDevice usbDevice;
 
     private final String macAddress;
 
@@ -148,6 +152,11 @@ public class DeviceConnFactoryManager {
         if (deviceConnFactoryManager.connMethod == CONN_METHOD.BLUETOOTH) {
             mPort = new BluetoothPort(macAddress);
             isOpenPort = deviceConnFactoryManager.mPort.openPort();
+            // Add by: GOPAN
+        } else if (deviceConnFactoryManager.connMethod == CONN_METHOD.USB) {
+            mPort = new UsbPort(mContext, usbDevice);
+            isOpenPort = deviceConnFactoryManager.mPort.openPort();
+            // End
         }
 
         //端口打开成功后，检查连接打印机所使用的打印机指令ESC、TSC
@@ -228,6 +237,7 @@ public class DeviceConnFactoryManager {
     private DeviceConnFactoryManager(Build build) {
         this.connMethod = build.connMethod;
         this.macAddress = build.macAddress;
+        this.usbDevice = build.usbDevice; // Add by: GOPAN
         this.mContext = build.context;
         deviceConnFactoryManagers.put(build.macAddress, this);
     }
@@ -243,11 +253,18 @@ public class DeviceConnFactoryManager {
 
     public static final class Build {
         private String macAddress;
+        private UsbDevice usbDevice; // Add by: GOPAN
         private CONN_METHOD connMethod;
         private Context context;
 
         public DeviceConnFactoryManager.Build setMacAddress(String macAddress) {
             this.macAddress = macAddress;
+            return this;
+        }
+
+        // Add by: GOPAN
+        public DeviceConnFactoryManager.Build setUsbDevice(UsbDevice usbDevice) {
+            this.usbDevice = usbDevice;
             return this;
         }
 

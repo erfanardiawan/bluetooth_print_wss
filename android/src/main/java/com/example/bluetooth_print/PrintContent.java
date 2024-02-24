@@ -18,6 +18,20 @@ import java.util.Vector;
 public class PrintContent {
       private static final String TAG = PrintContent.class.getSimpleName();
 
+      public static Vector<Byte> mapOpenDrawer() {
+            EscCommand esc = new EscCommand();
+
+            esc.addInitializePrinter();
+
+            esc.addGeneratePlus(LabelCommand.FOOT.F2, (byte) 255, (byte) 255);
+
+            byte [] bytes={0x1D,0x72,0x01};
+
+            esc.addUserCommand(bytes);
+
+            return esc.getCommand();
+      }
+
       /**
        * 票据打印对象转换
        */

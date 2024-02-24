@@ -15,7 +15,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.util.Log;
+import android.widget.Toast;
+
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -46,6 +50,11 @@ public class BluetoothPrintPlugin implements FlutterPlugin, ActivityAware, Metho
   private Context context;
   private ThreadPool threadPool;
   private String curMacAddress;
+
+  // Add by: GOPAN
+  private USBPrinterAdapter adapter;
+  private UsbDevice curUsbDevice;
+  private UsbManager mUSBManager;
 
   private static final String NAMESPACE = "bluetooth_print";
   private MethodChannel channel;
@@ -88,6 +97,7 @@ public class BluetoothPrintPlugin implements FlutterPlugin, ActivityAware, Metho
   @Override
   public void onAttachedToEngine(FlutterPluginBinding binding) {
     pluginBinding = binding;
+    adapter = new USBPrinterAdapter().getInstance(); // Add by: GOPAN
   }
 
   @Override
@@ -131,6 +141,7 @@ public class BluetoothPrintPlugin implements FlutterPlugin, ActivityAware, Metho
       Log.i(TAG, "setup");
       this.activity = activity;
       this.application = application;
+      adapter.init(activity, mUsbDeviceReceiver); // Add by: GOPAN
       this.context = application;
       channel = new MethodChannel(messenger, NAMESPACE + "/methods");
       channel.setMethodCallHandler(this);
