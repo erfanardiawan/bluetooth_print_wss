@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
+
 import com.gprinter.command.CpclCommand;
 import com.gprinter.command.EscCommand;
 import com.gprinter.command.LabelCommand;
@@ -81,6 +83,12 @@ public class PrintContent {
                         }else{
                               esc.addSetKanjiFontMode(EscCommand.ENABLE.OFF, EscCommand.ENABLE.OFF, EscCommand.ENABLE.OFF);
                         }
+//                        esc.addSelectJustification(EscCommand.JUSTIFICATION.LEFT);
+//                        esc.addText(content);
+//
+//                        esc.addSelectJustification(EscCommand.JUSTIFICATION.RIGHT);
+//                        esc.addText(content);
+
                         esc.addText(content);
                         // 取消倍高倍宽
                         esc.addSelectPrintModes(EscCommand.FONT.FONTA, EscCommand.ENABLE.OFF, EscCommand.ENABLE.OFF, EscCommand.ENABLE.OFF, EscCommand.ENABLE.OFF);
@@ -105,7 +113,7 @@ public class PrintContent {
                   }else if("image".equals(type)){
                         byte[] bytes = Base64.decode(content, Base64.DEFAULT);
                         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        esc.addRastBitImage(bitmap, 576, 0);
+                        esc.addRastBitImage(bitmap, width, 0);
                   }
 
                   if(linefeed == 1){

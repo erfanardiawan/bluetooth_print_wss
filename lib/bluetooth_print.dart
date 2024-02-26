@@ -137,8 +137,6 @@ class BluetoothPrint {
     return _channel.invokeMethod('connectUsb', params);
   }
 
-  Future<dynamic> openDrawer() => _channel.invokeMethod('openDrawer');
-
   Future<dynamic> disconnect() => _channel.invokeMethod('disconnect');
 
   Future<dynamic> destroy() => _channel.invokeMethod('destroy');
@@ -165,6 +163,9 @@ class BluetoothPrint {
     _channel.invokeMethod('printLabel', args);
     return Future.value(true);
   }
+
+  // Add by: GOPAN
+  Future<dynamic> openDrawer() => _channel.invokeMethod('openDrawer');
 
   Future<dynamic> printTest() => _channel.invokeMethod('printTest');
 }
