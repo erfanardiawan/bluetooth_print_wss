@@ -9,6 +9,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
+import android.os.Build;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -62,7 +63,12 @@ public class USBPrinterAdapter {
     void init(Context reactContext, BroadcastReceiver mUsbDeviceReceiver) {
         mContext = reactContext;
         mUSBManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
-        mPermissionIndent = PendingIntent.getBroadcast(mContext, 0, new Intent(ACTION_USB_PERMISSION), 0);
+//        mPermissionIndent = PendingIntent.getBroadcast(mContext, 0, new Intent(ACTION_USB_PERMISSION), 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mPermissionIndent = PendingIntent.getBroadcast(mContext, 0, new Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE);
+        } else {
+            mPermissionIndent = PendingIntent.getBroadcast(mContext, 0, new Intent(ACTION_USB_PERMISSION), 0);
+        }
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         mContext.registerReceiver(mUsbDeviceReceiver, filter);
