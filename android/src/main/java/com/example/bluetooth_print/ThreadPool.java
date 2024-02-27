@@ -46,7 +46,7 @@ public class ThreadPool {
     private ThreadFactory threadFactory = new ThreadFactoryBuilder("ThreadPool");
 
     private ThreadPool() {
-        threadPoolExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_COUNTS, AVAILABLE, TimeUnit.SECONDS, mWorkQueue,threadFactory);
+        threadPoolExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_COUNTS, AVAILABLE, TimeUnit.SECONDS, mWorkQueue, threadFactory);
     }
 
     public static ThreadPool getInstantiation() {
@@ -60,13 +60,14 @@ public class ThreadPool {
         if (runnable == null) {
             throw new NullPointerException("addTask(Runnable runnable)传入参数为空");
         }
-        if (threadPoolExecutor.getActiveCount()<MAX_POOL_COUNTS) {
-            Log.i("Lee","目前有"+threadPoolExecutor.getActiveCount()+"个线程正在进行中,有"+mWorkQueue.size()+"个任务正在排队");
-          synchronized (this){
-              threadPoolExecutor.execute(runnable);
-          }
+        if (threadPoolExecutor.getActiveCount() < MAX_POOL_COUNTS) {
+            Log.i("Lee", "目前有" + threadPoolExecutor.getActiveCount() + "个线程正在进行中,有" + mWorkQueue.size() + "个任务正在排队");
+            synchronized (this) {
+                threadPoolExecutor.execute(runnable);
+            }
         }
     }
+
     public synchronized void addSerialTask(final Runnable r) { //串行线程
         if (r == null) {
             throw new NullPointerException("addTask(Runnable runnable)传入参数为空");
@@ -86,6 +87,7 @@ public class ThreadPool {
             scheduleNext();
         }
     }
+
     private void scheduleNext() {
         if ((mActive = mArrayDeque.poll()) != null) {
             threadPoolExecutor.execute(mActive);

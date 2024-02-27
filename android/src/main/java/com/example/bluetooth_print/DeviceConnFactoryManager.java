@@ -303,7 +303,8 @@ public class DeviceConnFactoryManager {
 
         }
     }
-    public void sendByteDataImmediately(final byte [] data) {
+
+    public void sendByteDataImmediately(final byte[] data) {
         if (this.mPort != null) {
             Vector<Byte> datas = new Vector<Byte>();
             for (byte datum : data) {
