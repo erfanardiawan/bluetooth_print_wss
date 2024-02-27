@@ -58,8 +58,7 @@ public class BluetoothPrintPlugin implements FlutterPlugin, ActivityAware, Metho
     private UsbDevice curUsbDevice;
     private UsbManager mUSBManager;
 
-//    private static final String NAMESPACE = "bluetooth_print";
-    private static final String NAMESPACE = "bluetooth_print_wss";
+    private static final String NAMESPACE = "bluetooth_print";
     private MethodChannel channel;
     private EventChannel stateChannel;
     private BluetoothManager mBluetoothManager;
